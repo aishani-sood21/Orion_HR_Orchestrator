@@ -37,11 +37,32 @@ All three agents work together seamlessly through a single API call.
 ##  Project Structure
 
 ```
-BUILD2BREAK25-ORION/
-├── .github/
+Orion_HR_Orchestrator/
+├── frontend/                           ← Professional React Frontend (Port 3000)
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ResumeUploader.tsx     ← PDF upload component
+│   │   │   ├── FormSection.tsx        ← Job role & questions form
+│   │   │   ├── ResultsViewer.tsx      ← Results display
+│   │   │   ├── LoadingSpinner.tsx
+│   │   │   └── ErrorMessage.tsx
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── index.css
+│   │   ├── types.ts
+│   │   └── api.ts
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── tailwind.config.js
+│   ├── README.md
+│   └── .env
 ├── hr_management/
 │   ├── policy_service/
-│   ├── read_pdfs/
+│   ├── read_pdfs/                      ← Place test resume PDFs here
+│   │   ├── resume_text_1.txt
+│   │   ├── resume_text_2.txt
+│   │   └── resume_text_3.txt
 │   └── src/
 │       └── hr_management/
 │           ├── __pycache__/
@@ -49,13 +70,15 @@ BUILD2BREAK25-ORION/
 │           ├── crew.py
 │           ├── main.py
 │           ├── onboarding_agent.py
-│           ├── orchestrator.py              ← Port 9000 (Sequential API)
+│           ├── orchestrator.py         ← Port 9000 (Sequential API)
 │           ├── policy_agent.py
 │           ├── policy_documents.json
 │           ├── policy_qa.py
 │           ├── resume_agent.py
 │           └── .env
-└── README.md
+├── .github/
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -82,11 +105,15 @@ google-generativeai==0.3.1
 pdfplumber==0.10.3
 pytesseract==0.3.10
 Pillow==10.1.0
+python-multipart==0.0.6
+langchain==0.0.335
+langsmith==0.0.83
 ```
 
 Install dependencies:
 
 ```bash
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -160,6 +187,7 @@ COLLECTION_NAME = "candidates"
 ### Start the Service
 
 ```bash
+source .venv/bin/activate
 uvicorn orchestrator:app --host 0.0.0.0 --port 9000 --reload
 ```
 
@@ -649,6 +677,64 @@ Once running, access interactive documentation at:
 5. **Add webhook support** for async notifications
 6. **Implement caching** for better performance
 7. **Add integration with Google Calendar or Notion** for organisation of onboarding schedule
+
+---
+
+##  Frontend Application
+
+A professional React-based frontend has been included for easy interaction with the HR assistant. The frontend provides:
+
+### Features
+- 📄 **Resume Upload**: Drag-and-drop or click to upload PDF resumes
+- 📋 **Job Role Input**: Specify the target position
+- ❓ **Dynamic Policy Questions**: Add/remove policy questions on the fly
+- 📊 **Results Dashboard**: Beautiful presentation of:
+  - Candidate profile (name, college, skills)
+  - Skill score with visual progress indicator
+  - Technical and soft skills badges
+  - Personalized onboarding plan
+  - Policy Q&A responses
+
+### Quick Start
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will run on `http://localhost:3000` and automatically proxy API requests to the backend on `http://localhost:9000`.
+
+### Production Build
+
+```bash
+npm run build
+npm run preview
+```
+
+### Technology Stack
+- **React 18** with TypeScript
+- **Tailwind CSS** for responsive design
+- **Vite** for fast development
+- **Axios** for API communication
+
+### Environment Configuration
+
+Create/update `.env` in the `frontend/` directory:
+
+```
+VITE_API_URL=http://localhost:9000
+```
+
+### File Upload
+
+The frontend expects resume PDFs. To use with the backend:
+
+1. Upload the PDF through the UI
+2. The frontend sends the filename to the backend
+3. Backend processes the resume from the configured path
+
+For development, place test PDFs in the `hr_management/read_pdfs/` directory.
 
 ---
 

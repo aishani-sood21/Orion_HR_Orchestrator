@@ -10,6 +10,7 @@ from PIL import Image
 import re
 import google.generativeai as genai
 import ast
+import shutil
 from pymongo import MongoClient
 import urllib.parse
 from dotenv import load_dotenv
@@ -52,7 +53,7 @@ SELECT_N_FORM = """
 </html>
 """
 
-load_dotenv(dotenv_path="../../.env")
+load_dotenv(dotenv_path=".env")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 # os.environ["GOOGLE_API_KEY"] = GEMINI_API_KEY
 if GEMINI_API_KEY:
@@ -81,12 +82,18 @@ async def main():
 
 def extract_text_from_pdf(pdf_path):
     text = ""
+    tesseract_available = shutil.which("tesseract") is not None
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
             page_text = page.extract_text() or ""
-            img = page.to_image(resolution=200).original.convert("L")
-            img = img.point(lambda x: 0 if x < 180 else 255, '1')
-            ocr_text = pytesseract.image_to_string(img)
+            ocr_text = ""
+            if tesseract_available:
+                img = page.to_image(resolution=200).original.convert("L")
+                img = img.point(lambda x: 0 if x < 180 else 255, '1')
+                try:
+                    ocr_text = pytesseract.image_to_string(img)
+                except pytesseract.TesseractNotFoundError:
+                    ocr_text = ""
             combined = page_text + "\n" + ocr_text
             text += combined
     return text

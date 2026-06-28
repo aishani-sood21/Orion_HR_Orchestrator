@@ -48,7 +48,7 @@ def build_prompt(question: str, context: List[str], memory: List[Dict], role: st
 
 
 # Gemini 2.5 Flash API integration
-load_dotenv(dotenv_path="../../.env")
+load_dotenv(dotenv_path=".env")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
 
